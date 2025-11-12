@@ -1,0 +1,17 @@
+{
+  "_id": "7b92c3e1-8f4a-4d2b-9e1c-5a6f8b2d3e4f",
+  "numeroNota": "67890",
+  "codigo_servico": "102",
+  "descricao": "Exame laboratorial - Hemograma completo",
+  "valor": 85.50,
+  "cpf_cnpj_cliente": "98765432109",
+  "cliente": "Maria Santos",
+  "email": "maria.santos@email.com",
+  "cep": "04567000",
+  "endereco": "Rua dos Médicos",
+  "numero": "456",
+  "bairro": "Jardins",
+  "codigo_municipio": "3550308",
+  "municipio": "São Paulo",
+  "uf": "SP"
+}

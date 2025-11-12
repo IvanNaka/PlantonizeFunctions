@@ -1,0 +1,17 @@
+{
+  "_id": "9c1d5e2f-3a4b-5c6d-7e8f-9a0b1c2d3e4f",
+  "numeroNota": "54321",
+  "codigo_servico": "103",
+  "descricao": "Procedimento cirúrgico - Pequeno porte",
+  "valor": 2500.00,
+  "cpf_cnpj_cliente": "11223344556",
+  "cliente": "Pedro Oliveira",
+  "email": "pedro.oliveira@email.com",
+  "cep": "22041001",
+  "endereco": "Avenida Atlântica",
+  "numero": "1000",
+  "bairro": "Copacabana",
+  "codigo_municipio": "3304557",
+  "municipio": "Rio de Janeiro",
+  "uf": "RJ"
+}

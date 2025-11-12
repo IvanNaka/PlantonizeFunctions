@@ -7,8 +7,58 @@ import json
 import logging
 import requests
 import os
+from pymongo import MongoClient
 
 app = func.FunctionApp()
+
+# Configuração da conexão com MongoDB
+MONGO_CONNECTION_STRING = os.getenv(
+    "MONGO_CONNECTION_STRING",
+    "mongodb+srv://ivannakatani_db_user:4ATXzTJWIOvRlNek@plantonize-cluster.tytzrfd.mongodb.net/?retryWrites=true&w=majority&appName=plantonize-cluster&tlsInsecure=false&tls=true"
+)
+MONGO_DATABASE = os.getenv("MONGO_DATABASE", "VOcFcd0JIZaWirT2")
+
+# Nomes das coleções
+COLLECTION_NOTAS_FISCAIS = os.getenv("NOTAS_FISCAIS_COLLECTION", "NotasFiscais")
+COLLECTION_FATURAS = os.getenv("FATURAS_COLLECTION", "Faturas")
+COLLECTION_MUNICIPIOS_ALIQUOTA = os.getenv("MUNICIPIOS_ALIQUOTA_COLLECTION", "MunicipiosAliquota")
+COLLECTION_IMPOSTOS_RESUMO = os.getenv("IMPOSTOS_RESUMO_COLLECTION", "ImpostosResumo")
+
+# Cliente MongoDB (reutilizável entre invocações)
+mongo_client = None
+
+def get_mongo_client():
+    """Retorna uma conexão com MongoDB (singleton)"""
+    global mongo_client
+    if mongo_client is None:
+        mongo_client = MongoClient(MONGO_CONNECTION_STRING)
+        logging.info("✅ Conexão com MongoDB estabelecida")
+    return mongo_client
+
+def get_mongo_db():
+    """Retorna o banco de dados MongoDB"""
+    client = get_mongo_client()
+    return client[MONGO_DATABASE]
+
+def get_notas_fiscais_collection():
+    """Retorna a coleção de Notas Fiscais"""
+    db = get_mongo_db()
+    return db[COLLECTION_NOTAS_FISCAIS]
+
+def get_faturas_collection():
+    """Retorna a coleção de Faturas"""
+    db = get_mongo_db()
+    return db[COLLECTION_FATURAS]
+
+def get_municipios_aliquota_collection():
+    """Retorna a coleção de Municípios e Alíquotas"""
+    db = get_mongo_db()
+    return db[COLLECTION_MUNICIPIOS_ALIQUOTA]
+
+def get_impostos_resumo_collection():
+    """Retorna a coleção de Impostos Resumo"""
+    db = get_mongo_db()
+    return db[COLLECTION_IMPOSTOS_RESUMO]
 
 @app.service_bus_queue_trigger(
     arg_name="msg",
@@ -18,7 +68,7 @@ app = func.FunctionApp()
 def EnviarNFSEFunction(msg: func.ServiceBusMessage):
     try:
         body = msg.get_body().decode("utf-8")
-        logging.info(f"📥 Mensagem recebida do Service Bus: {body}")
+        logging.info(f"Mensagem recebida do Service Bus: {body}")
 
         data = json.loads(body)
 
@@ -45,8 +95,8 @@ def EnviarNFSEFunction(msg: func.ServiceBusMessage):
             }
         }
 
-        api_key = os.getenv("NFE_API_KEY")
-        empresa_id = os.getenv("NFE_COMPANY_ID")
+        api_key = 'TESTE'
+        empresa_id = 123
 
         if not api_key or not empresa_id:
             raise Exception("❌ Variáveis de ambiente NFE_API_KEY ou NFE_COMPANY_ID não configuradas.")
@@ -63,13 +113,43 @@ def EnviarNFSEFunction(msg: func.ServiceBusMessage):
         response = requests.post(url, headers=headers, data=json.dumps(payload))
         logging.info(f"📤 Resposta NFe.io: {response.status_code}")
 
+        # Atualizar status no MongoDB se o envio foi bem-sucedido
+        try:
+            collection = get_notas_fiscais_collection()
+            
+            # Buscar por _id ou numeroNota
+            filtro = {}
+            if data.get("_id"):
+                filtro["_id"] = data.get("_id")
+            elif data.get("numeroNota"):
+                filtro["numeroNota"] = data.get("numeroNota")
+            
+            if filtro:
+                resultado = collection.update_one(
+                    filtro,
+                    {"$set": {"status": "Emitido"}}
+                )
+                
+                if resultado.modified_count > 0:
+                    logging.info(f"Status atualizado para 'Emitido' no MongoDB: {filtro}")
+                elif resultado.matched_count > 0:
+                    logging.info(f"ℹNota já estava com status 'Emitido': {filtro}")
+                else:
+                    logging.warning(f"Nota fiscal não encontrada no MongoDB: {filtro}")
+            else:
+                logging.warning("Nenhum identificador (_id ou numeroNota) fornecido para atualizar no MongoDB")
+                
+        except Exception as e:
+            logging.error(f"Erro ao atualizar status no MongoDB: {str(e)}")
+            # Não interrompe o fluxo, apenas registra o erro
+
         email_destinatario = data.get("email", "")
         if not email_destinatario:
-            logging.warning("⚠️ Nenhum e-mail informado na mensagem, não foi possível enviar aviso.")
+            logging.warning("Nenhum e-mail informado na mensagem, não foi possível enviar aviso.")
             return
 
         if response.status_code in (200, 201):
-            assunto = "✅ NFSe emitida com sucesso"
+            assunto = "NFSe emitida com sucesso"
             mensagem = f"A NFSe do cliente {data.get('cliente')} foi emitida com sucesso."
         else:
             assunto = "❌ Falha ao emitir NFSe"

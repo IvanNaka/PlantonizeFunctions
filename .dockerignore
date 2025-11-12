@@ -1,0 +1,11 @@
+.venv
+__pycache__
+*.pyc
+.git
+local.settings.json
+functionapp.zip
+*.log
+node_modules
+venv
+dist
+build

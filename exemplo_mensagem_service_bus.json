@@ -1,0 +1,17 @@
+{
+  "_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "numeroNota": "12345",
+  "codigo_servico": "101",
+  "descricao": "Consulta médica",
+  "valor": 150.00,
+  "cpf_cnpj_cliente": "12345678901",
+  "cliente": "João Silva",
+  "email": "joao.silva@email.com",
+  "cep": "01310100",
+  "endereco": "Avenida Paulista",
+  "numero": "1578",
+  "bairro": "Bela Vista",
+  "codigo_municipio": "3550308",
+  "municipio": "São Paulo",
+  "uf": "SP"
+}

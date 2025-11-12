@@ -1,0 +1,17 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "FUNCTIONS_WORKER_RUNTIME": "python",
+    "ServiceBusConnection": "Endpoint=sb://...",
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "MONGO_CONNECTION_STRING": "mongodb+srv://ivannakatani_db_user:4ATXzTJWIOvRlNek@plantonize-cluster.tytzrfd.mongodb.net/?retryWrites=true&w=majority&appName=plantonize-cluster&tlsInsecure=false&tls=true",
+    "MONGO_DATABASE": "VOcFcd0JIZaWirT2",
+    "NOTAS_FISCAIS_COLLECTION": "NotasFiscais",
+    "FATURAS_COLLECTION": "Faturas",
+    "MUNICIPIOS_ALIQUOTA_COLLECTION": "MunicipiosAliquota",
+    "IMPOSTOS_RESUMO_COLLECTION": "ImpostosResumo",
+    "NFE_API_KEY": "sua_api_key_aqui",
+    "NFE_COMPANY_ID": "seu_company_id_aqui"
+  },
+  "ConnectionStrings": {}
+}
